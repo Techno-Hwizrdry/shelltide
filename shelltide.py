@@ -34,12 +34,12 @@ def handle_resize(signum, frame):
 _wind_result  = None
 _wind_lock    = threading.Lock()
 
-def _wind_thread(lat, lon, interval):
+def _wind_thread(lat, lon, interval, use_mph=False):
     """Fetch wind in background, never blocks main loop."""
     global _wind_result
     while True:
         try:
-            result = astronomy.fetch_wind(lat, lon)
+            result = astronomy.fetch_wind(lat, lon, use_mph=use_mph)
             with _wind_lock:
                 _wind_result = result
         except Exception:
@@ -57,7 +57,7 @@ def main(stdscr, lat, lon, kiosk, interval, tide_override=None, wind_override=No
     render.init_colors()
 
     # start wind fetch thread
-    wt = threading.Thread(target=_wind_thread, args=(lat, lon, 60),
+    wt = threading.Thread(target=_wind_thread, args=(lat, lon, 60, args.use_12h),
                           daemon=True)
     wt.start()
 
@@ -121,10 +121,13 @@ def main(stdscr, lat, lon, kiosk, interval, tide_override=None, wind_override=No
                 elif m < 32: bf=6
                 else:        bf=7
                 tide_data['wind'] = {
-                    'speed_mph': wind_override,
+                    'speed':         wind_override,
+                    'speed_mph':     wind_override,
+                    'unit':          'mph' if args.use_12h else 'km/h',
                     'direction_deg': wind_dir,
                     'direction_str': dstr,
-                    'beaufort': bf,
+                    'beaufort':      bf,
+                    'utc_offset':    0,
                 }
             else:
                 with _wind_lock:

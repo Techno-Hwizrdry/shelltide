@@ -1,0 +1,7 @@
+__pycache__/
+*.save
+gradient_test.py
+show_colors.py
+test_resize.py
+debug_render.py
+data/

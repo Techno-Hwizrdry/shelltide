@@ -110,21 +110,22 @@ if __name__ == '__main__':
     print(f"Spring/neap: {spring_neap_factor():.3f}")
 
 
-def fetch_wind(lat_deg: float, lon_deg: float) -> dict:
+def fetch_wind(lat_deg: float, lon_deg: float, use_mph: bool = False) -> dict:
     """
     Fetch current wind speed and direction from Open-Meteo.
-    Returns dict with speed_mph, direction_deg, direction_str, beaufort.
+    Returns dict with speed, unit, direction_deg, direction_str, beaufort.
     Falls back to None on any error.
     """
     import urllib.request
     import urllib.parse
     import json
 
+    wind_unit = 'mph' if use_mph else 'kmh'
     params = urllib.parse.urlencode({
         'latitude':        lat_deg,
         'longitude':       lon_deg,
         'current':         'wind_speed_10m,wind_direction_10m',
-        'wind_speed_unit': 'mph',
+        'wind_speed_unit': wind_unit,
         'timezone':        'auto',
         'forecast_days':   1,
     })
@@ -155,8 +156,12 @@ def fetch_wind(lat_deg: float, lon_deg: float) -> dict:
 
         utc_offset = int(data.get('utc_offset_seconds', 0))
 
+        speed_mph = speed if use_mph else speed * 0.621371
+
         return {
-            'speed_mph':     speed,
+            'speed':         speed,
+            'speed_mph':     speed_mph,
+            'unit':          'mph' if use_mph else 'km/h',
             'direction_deg': deg,
             'direction_str': dstr,
             'beaufort':      bf,

@@ -228,6 +228,7 @@ def render_frame(stdscr, tide_data, tick, kiosk):
         _fill_row(stdscr, r, ' ', sky_attr, h, w)
 
     # ── water ──────────────────────────────────────────────────────────────────
+    #yarrr avast!
     wave_profile = []  # populated in wave section below; init here for water fill
     # Compute boat row range for water fill exclusion
     # _boat_cols tracks x range; compute y range from wave surface
@@ -367,6 +368,22 @@ def render_frame(stdscr, tide_data, tick, kiosk):
     # ── status panel ─────────────────────────────────────────────────────────
     _draw_status(stdscr, tide_data, tick, h, w, surface)
 
+    # ── wind label — drawn last so sky clear can't wipe it ─────────────────────
+    wind = tide_data.get('wind')
+    if wind:
+        pole_col  = w - 8
+        speed_val = wind.get('speed', wind.get('speed_mph', 0))
+        unit      = wind.get('unit', 'mph')
+        label     = f'{speed_val:.0f}{unit}'
+        dir_label = wind['direction_str']
+        label_row = 7
+        label_col = pole_col + 2
+        if label_col > 0:
+            _put(stdscr, label_row - 1, label_col, dir_label,
+                 curses.color_pair(PAIR_DIM), h, w)
+            _put(stdscr, label_row, label_col, label,
+                 curses.color_pair(PAIR_DIM), h, w)
+
     stdscr.refresh()
 
 # ── Big digit glyphs ──────────────────────────────────────────────────────────
@@ -488,7 +505,7 @@ def _draw_status(stdscr, tide_data, tick, h, w, surface=0):
     SPARK_H  = 4
     SPARK_W  = 13
     kiosk    = tide_data.get('kiosk', False)
-    tall_mode = (not kiosk) and (
+    tall_mode = (not kiosk) and (tide_pct < 60) and (
         (h > 26) if tide_pct < 60 else (h > surface + 5 + SPARK_H + 8)
     )
     spark_w = SPARK_W if not tall_mode else min(25, w - x - 4)
@@ -618,16 +635,7 @@ def _draw_pole(stdscr, tide_data, tick, h, w, surface):
             for fi, ch in enumerate(reversed(row1)):
                 _put(stdscr, r1, pole_col - 1 - fi, ch, flag_attr, h, w)
 
-    if wind:
-        label     = f'{wind["speed_mph"]:.0f}mph'
-        dir_label = wind['direction_str']
-        label_row = r1 + 3
-        label_col = pole_col + 2
-        if label_row < surface and label_row < h - 1 and label_col + len(label) < w:
-            _put(stdscr, label_row - 1, label_col, dir_label,
-                 curses.color_pair(PAIR_DIM), h, w)
-            _put(stdscr, label_row, label_col, label,
-                 curses.color_pair(PAIR_DIM), h, w)
+    # wind label drawn separately after wave in render_frame
 
 
 # ── Boat state ────────────────────────────────────────────────────────────────
