@@ -1,4 +1,6 @@
 __pycache__/
+.venv/
+
 *.save
 gradient_test.py
 show_colors.py
