@@ -95,7 +95,9 @@ shelltide --kiosk --location "Bar Harbor, ME"
 - `ephem` — planetary positions (no ephemeris download)
 - `drawille` — Braille pixel canvas for wave surface
 - `curses` — standard library
+- `venv` — creates isolated workspaces for individual projects
 - Python 3.8+
+- pip 
 
 ## Related projects
 

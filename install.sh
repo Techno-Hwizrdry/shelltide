@@ -3,6 +3,10 @@ set -e
 
 echo "Installing shelltide..."
 
+# Install venv for Python3, if it is not already installed.
+sudo apt update
+sudo apt install python3-venv -y
+
 # Get the directory where shelltide lives
 SHELLTIDE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENV_PATH="$SHELLTIDE_DIR/.venv"
@@ -26,4 +30,4 @@ SCRIPT
 sudo chmod +x /usr/local/bin/shelltide
 
 echo ""
-echo "Done! Try: shelltide --location \"Boston, MA\""
+echo "Done! Try: shelltide --location \"Bar Harbor, ME\""
